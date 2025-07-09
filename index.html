@@ -462,16 +462,16 @@
                 <h2 class="section-title">Key Achievements</h2>
                 <div class="stats">
                     <div class="stat-card">
-                        <div class="stat-number">30×</div>
-                        <div class="stat-label">Data Efficiency Improvement</div>
-                    </div>
-                    <div class="stat-card">
                         <div class="stat-number">192</div>
-                        <div class="stat-label">Hours of Curated Data</div>
+                        <div class="stat-label">Hours of Curated Training Data</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">23%</div>
-                        <div class="stat-label">Performance Increase</div>
+                        <div class="stat-number">4.5×</div>
+                        <div class="stat-label">Better Video-to-Audio Retrieval</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">Alignment Scoring Metrics</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number">3</div>
@@ -480,7 +480,7 @@
                 </div>
                 
                 <p style="font-size: 1.1rem; margin-top: 2rem; color: #666;">
-                    AVVA achieves comparable performance to DenseAV using only <strong>192 hours</strong> of carefully curated data compared to DenseAV's <strong>5,800+ hours</strong> – demonstrating that quality beats quantity in multimodal learning.
+                    AVVA achieves <strong>significant improvements in video-to-audio retrieval</strong> across AudioCaps, VALOR, and VGGSound datasets using only <strong>192 hours</strong> of LLM-curated training data – demonstrating that data quality effectively trades for data quantity.
                 </p>
             </div>
         </div>
@@ -492,13 +492,13 @@
                 <h2 class="section-title">Architecture Overview</h2>
                 <div class="architecture">
                     <div class="architecture-diagram">
-                        <div class="architecture-placeholder">
-                            📊 AVVA Framework Architecture<br>
-                            (Replace with actual figure-1-avva-framework.png)
-                        </div>
+                        <img src="figures/figure-1-avva-framework.png" alt="AVVA Framework Architecture" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        <p style="font-size: 0.9rem; color: #666; margin-top: 1rem; font-style: italic;">
+                            Figure 1: Overview of the proposed audiovisual alignment approach showing (a) data curation stage and (b) AVVA model training
+                        </p>
                     </div>
                     <p style="font-size: 1.1rem; margin-top: 2rem; color: #666;">
-                        AVVA employs a dual-encoder architecture with <strong>Whisper</strong> for audio processing and <strong>DINOv2</strong> for video analysis, connected through bidirectional cross-modal attention for direct audio-video alignment without textual mediation.
+                        AVVA integrates Whisper (speech-based foundation model) for audio and DINOv2 for video analysis in a dual-encoder structure with contrastive learning on AV pairs, enabling direct audio-video alignment without textual mediation during training.
                     </p>
                 </div>
             </div>
@@ -513,23 +513,30 @@
                     <div class="result-card">
                         <div class="result-title">AudioCaps V2A Top-1</div>
                         <div class="result-value">6.23%</div>
-                        <div class="result-description">4.5× improvement over DenseAV</div>
+                        <div class="result-description">vs 1.40% DenseAV baseline</div>
                     </div>
                     <div class="result-card">
                         <div class="result-title">VALOR V2A Top-1</div>
                         <div class="result-value">7.75%</div>
-                        <div class="result-description">3.5× improvement over DenseAV</div>
+                        <div class="result-description">vs 2.20% DenseAV baseline</div>
                     </div>
                     <div class="result-card">
                         <div class="result-title">VGGSound V2A Top-1</div>
                         <div class="result-value">6.86%</div>
-                        <div class="result-description">4.3× improvement over DenseAV</div>
+                        <div class="result-description">vs 1.60% DenseAV baseline</div>
                     </div>
                     <div class="result-card">
-                        <div class="result-title">Data Efficiency</div>
-                        <div class="result-value">192h</div>
-                        <div class="result-description">vs 5,800h for comparable performance</div>
+                        <div class="result-title">Data Curation Benefit</div>
+                        <div class="result-value">Quality</div>
+                        <div class="result-description">Trades data quality for quantity</div>
                     </div>
+                </div>
+                
+                <div class="architecture-diagram" style="margin-top: 3rem;">
+                    <img src="figures/topk_plots.png" alt="Performance vs Training Data" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <p style="font-size: 0.9rem; color: #666; margin-top: 1rem; font-style: italic;">
+                        Figure 4: Audio-to-video model performance over hours of training data, showing consistent improvements with data curation across Top-k accuracies
+                    </p>
                 </div>
             </div>
         </div>
@@ -540,7 +547,7 @@
             <div class="demo-container">
                 <h2 class="section-title">Multimodal Reasoning Engine</h2>
                 <p style="font-size: 1.1rem; margin-bottom: 2rem;">
-                    Explore how AVVA scores audio-video alignment across five key metrics
+                    AVVA's data curation uses LLMs to score audio-video alignment, effectively trading data quality for data quantity
                 </p>
                 
                 <div class="demo-controls">
@@ -566,7 +573,7 @@
             <div class="section-content">
                 <h2 class="section-title">Open Source & Reproducible</h2>
                 <p style="font-size: 1.1rem; margin-bottom: 2rem; color: #666;">
-                    All code, data, and experimental details are available for full reproducibility
+                    AVVA implements a scoring mechanism for selecting aligned training data segments and demonstrates significant improvements in top-k accuracies for video-to-audio retrieval across AudioCaps, VALOR, and VGGSound compared to existing methods.
                 </p>
                 
                 <div class="hero-buttons">
