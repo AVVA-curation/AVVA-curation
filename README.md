@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > **Quality Over Quantity? LLM-Based Curation for a Data-Efficient Audio-Video Foundation Model**  
-> [Ali Vosoughi](https://alivosoughi.com)¹*, [Dimitra Emmanouilidou](https://scholar.google.com/citations?user=example)², [Hannes Gamper](https://scholar.google.com/citations?user=example)²  
+> [Ali Vosoughi](https://alivosoughi.com)¹*, [Dimitra Emmanouilidou](https://www.microsoft.com/en-us/research/people/diemmano/)², [Hannes Gamper](https://www.microsoft.com/en-us/research/people/hagamper/)²  
 > ¹University of Rochester, ²Microsoft Research  
 > *Work completed during internship at Microsoft Research  
 > **EUSIPCO 2025** | European Signal Processing Conference
