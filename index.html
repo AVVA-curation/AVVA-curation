@@ -25,6 +25,105 @@
             padding: 0 20px;
         }
 
+        /* Acceptance Banner */
+        .acceptance-banner {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .acceptance-banner .emoji {
+            font-size: 1.3rem;
+            margin-right: 0.5rem;
+        }
+
+        /* Citation Block */
+        .citation-block {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem auto;
+            max-width: 900px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .citation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .citation-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+        }
+
+        .citation-content {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: #1f2937;
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+
+        .citation-formats {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .format-btn {
+            padding: 0.4rem 0.8rem;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .format-btn:hover,
+        .format-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
         /* Navigation */
         nav {
             background: rgba(255, 255, 255, 0.1);
@@ -107,6 +206,18 @@
             margin-bottom: 2rem;
             opacity: 0.9;
             line-height: 1.8;
+        }
+
+        .conference-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
         }
 
         .authors {
@@ -396,6 +507,16 @@
             .stats {
                 grid-template-columns: 1fr;
             }
+
+            .citation-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .citation-formats {
+                flex-wrap: wrap;
+            }
         }
 
         /* Scroll Progress Bar */
@@ -412,6 +533,12 @@
     </style>
 </head>
 <body>
+    <div class="acceptance-banner">
+        <span class="emoji">🎉</span>
+        Accepted at EUSIPCO 2025 (European Signal Processing Conference)
+        <span class="emoji">🎉</span>
+    </div>
+
     <div class="progress-bar" id="progressBar"></div>
     
     <nav id="navbar">
@@ -420,6 +547,7 @@
                 <a href="#" class="logo">AVVA</a>
                 <ul class="nav-links">
                     <li><a href="#home">Home</a></li>
+                    <li><a href="#citation">Citation</a></li>
                     <li><a href="#architecture">Architecture</a></li>
                     <li><a href="#results">Results</a></li>
                     <li><a href="#demo">Demo</a></li>
@@ -437,6 +565,10 @@
                     <strong>A</strong>udio-<strong>V</strong>ideo <strong>V</strong>ector <strong>A</strong>lignment<br>
                     Quality Over Quantity? LLM-Based Curation for a Data-Efficient Audio–Video Foundation Model
                 </p>
+
+                <div class="conference-badge">
+                    EUSIPCO 2025
+                </div>
                 
                 <div class="authors">
                     <strong>Ali Vosoughi</strong>*¹, <strong>Dimitra Emmanouilidou</strong>², <strong>Hannes Gamper</strong>²
@@ -448,10 +580,40 @@
                 </div>
                 
                 <div class="hero-buttons">
-                    <a href="#" class="btn btn-primary">📄 Read Paper</a>
+                    <a href="https://eurasip.org/Proceedings/Eusipco/Eusipco2025/pdfs/0000286.pdf" class="btn btn-primary">📄 Read Paper</a>
                     <a href="https://github.com/AVVA-curation/AVVA-curation" class="btn btn-secondary">💻 View Code</a>
-                    <a href="#" class="btn btn-secondary">🤗 Dataset</a>
+                    <a href="#citation" class="btn btn-secondary">📋 Cite This Work</a>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="citation" class="content-section" style="padding-top: 6rem;">
+        <div class="container">
+            <div class="citation-block">
+                <div class="citation-header">
+                    <span class="citation-title">📋 Citation</span>
+                    <button class="copy-btn" id="copyBtn" onclick="copyCitation()">
+                        <span id="copyIcon">📋</span>
+                        <span id="copyText">Copy</span>
+                    </button>
+                </div>
+                
+                <div class="citation-formats">
+                    <button class="format-btn active" onclick="showFormat('bibtex')">BibTeX</button>
+                    <button class="format-btn" onclick="showFormat('apa')">APA</button>
+                    <button class="format-btn" onclick="showFormat('ieee')">IEEE</button>
+                </div>
+
+                <div class="citation-content" id="citationContent">
+@inproceedings{vosoughi2025quality,
+  title={Quality Over Quantity? LLM-Based Curation for a Data-Efficient Audio-Video Foundation Model},
+  author={Vosoughi, Ali and Emmanouilidou, Dimitra and Gamper, Hannes},
+  booktitle={2025 33rd European Signal Processing Conference (EUSIPCO)},
+  year={2025},
+  organization={IEEE},
+  url={https://eurasip.org/Proceedings/Eusipco/Eusipco2025/pdfs/0000286.pdf}
+}</div>
             </div>
         </div>
     </section>
@@ -585,9 +747,8 @@
                 
                 <div class="hero-buttons">
                     <a href="https://github.com/AVVA-curation/AVVA-curation" class="btn btn-primary">🔧 Source Code</a>
-                    <a href="#" class="btn btn-secondary">📊 Datasets</a>
-                    <a href="#" class="btn btn-secondary">📈 Experiments</a>
-                    <a href="#" class="btn btn-secondary">📋 Prompts</a>
+                    <a href="https://eurasip.org/Proceedings/Eusipco/Eusipco2025/pdfs/0000286.pdf" class="btn btn-secondary">📊 Paper (PDF)</a>
+                    <a href="#citation" class="btn btn-secondary">📋 Citation</a>
                 </div>
             </div>
         </div>
@@ -597,18 +758,66 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-links">
-                    <a href="#">Paper</a>
+                    <a href="https://eurasip.org/Proceedings/Eusipco/Eusipco2025/pdfs/0000286.pdf">Paper</a>
                     <a href="https://github.com/AVVA-curation/AVVA-curation">Code</a>
-                    <a href="#">Dataset</a>
-                    <a href="#">University of Rochester</a>
-                    <a href="#">Microsoft Research</a>
+                    <a href="https://www.rochester.edu">University of Rochester</a>
+                    <a href="https://www.microsoft.com/en-us/research/">Microsoft Research</a>
                 </div>
-                <p>&copy; 2024 AVVA Research Team. Licensed under MIT.</p>
+                <p>&copy; 2025 AVVA Research Team. Licensed under MIT.</p>
+                <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">
+                    Published in 2025 33rd European Signal Processing Conference (EUSIPCO)
+                </p>
             </div>
         </div>
     </footer>
 
     <script>
+        // Citation formats
+        const citations = {
+            bibtex: `@inproceedings{vosoughi2025quality,
+  title={Quality Over Quantity? LLM-Based Curation for a Data-Efficient Audio-Video Foundation Model},
+  author={Vosoughi, Ali and Emmanouilidou, Dimitra and Gamper, Hannes},
+  booktitle={2025 33rd European Signal Processing Conference (EUSIPCO)},
+  year={2025},
+  organization={IEEE},
+  url={https://eurasip.org/Proceedings/Eusipco/Eusipco2025/pdfs/0000286.pdf}
+}`,
+            apa: `Vosoughi, A., Emmanouilidou, D., & Gamper, H. (2025). Quality Over Quantity? LLM-Based Curation for a Data-Efficient Audio-Video Foundation Model. In 2025 33rd European Signal Processing Conference (EUSIPCO). IEEE.`,
+            ieee: `A. Vosoughi, D. Emmanouilidou, and H. Gamper, "Quality Over Quantity? LLM-Based Curation for a Data-Efficient Audio-Video Foundation Model," in 2025 33rd European Signal Processing Conference (EUSIPCO), 2025.`
+        };
+
+        let currentFormat = 'bibtex';
+
+        function showFormat(format) {
+            currentFormat = format;
+            const content = document.getElementById('citationContent');
+            const buttons = document.querySelectorAll('.format-btn');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            content.textContent = citations[format];
+        }
+
+        function copyCitation() {
+            const content = document.getElementById('citationContent').textContent;
+            const btn = document.getElementById('copyBtn');
+            const icon = document.getElementById('copyIcon');
+            const text = document.getElementById('copyText');
+            
+            navigator.clipboard.writeText(content).then(() => {
+                btn.classList.add('copied');
+                icon.textContent = '✓';
+                text.textContent = 'Copied!';
+                
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    icon.textContent = '📋';
+                    text.textContent = 'Copy';
+                }, 2000);
+            });
+        }
+
         // Smooth scrolling for navigation links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
