@@ -1,920 +1,415 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AVVA: Audio-Video Vector Alignment</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Acceptance Banner */
-        .acceptance-banner {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 1rem;
-            text-align: center;
-            font-weight: 600;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .acceptance-banner .emoji {
-            font-size: 1.3rem;
-            margin-right: 0.5rem;
-        }
-
-        /* Citation Block */
-        .citation-block {
-            background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin: 2rem auto;
-            max-width: 900px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .citation-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .citation-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .copy-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .copy-btn:hover {
-            background: #5568d3;
-            transform: translateY(-1px);
-        }
-
-        .copy-btn.copied {
-            background: #10b981;
-        }
-
-        .citation-content {
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            line-height: 1.8;
-            color: #1f2937;
-            background: #f9fafb;
-            padding: 1rem;
-            border-radius: 6px;
-            overflow-x: auto;
-        }
-
-        .citation-formats {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .format-btn {
-            padding: 0.4rem 0.8rem;
-            border: 1px solid #d1d5db;
-            background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-        }
-
-        .format-btn:hover,
-        .format-btn.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        /* Navigation */
-        nav {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }
-
-        nav.scrolled {
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: white;
-            text-decoration: none;
-        }
-
-        nav.scrolled .logo {
-            color: #333;
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            transition: opacity 0.3s ease;
-        }
-
-        nav.scrolled .nav-links a {
-            color: #333;
-        }
-
-        .nav-links a:hover {
-            opacity: 0.8;
-        }
-
-        /* Hero Section */
-        .hero {
-            padding: 8rem 0 4rem;
-            text-align: center;
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .hero-content {
-            max-width: 800px;
-            animation: fadeInUp 1s ease-out;
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .hero .subtitle {
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-            line-height: 1.8;
-        }
-
-        .conference-badge {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border: 2px solid white;
-            padding: 0.5rem 1.5rem;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-        }
-
-        .authors {
-            margin-bottom: 2rem;
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .affiliations {
-            margin-bottom: 3rem;
-            font-size: 1rem;
-            opacity: 0.8;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 2rem;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: white;
-            color: #667eea;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid white;
-        }
-
-        .btn-secondary:hover {
-            background: white;
-            color: #667eea;
-        }
-
-        /* Content Sections */
-        .content-section {
-            background: white;
-            padding: 4rem 0;
-        }
-
-        .content-section:nth-child(even) {
-            background: #f8f9fa;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
-            text-align: center;
-            color: #333;
-        }
-
-        .section-content {
-            max-width: 800px;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        /* Stats Section */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin: 3rem 0;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-number {
-            font-size: 3rem;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            font-size: 1.1rem;
-            color: #666;
-            font-weight: 500;
-        }
-
-        /* Architecture Section */
-        .architecture {
-            text-align: center;
-            margin: 3rem 0;
-        }
-
-        .architecture-diagram {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            margin: 2rem 0;
-        }
-
-        .architecture-placeholder {
-            width: 100%;
-            height: 400px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        /* Results Section */
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin: 3rem 0;
-        }
-
-        .result-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .result-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: #333;
-        }
-
-        .result-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 0.5rem;
-        }
-
-        .result-description {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* Interactive Elements */
-        .interactive-demo {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 4rem 0;
-            text-align: center;
-            color: white;
-        }
-
-        .demo-container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .demo-controls {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin: 2rem 0;
-            flex-wrap: wrap;
-        }
-
-        .demo-btn {
-            padding: 12px 24px;
-            border: 2px solid white;
-            background: transparent;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .demo-btn:hover,
-        .demo-btn.active {
-            background: white;
-            color: #667eea;
-        }
-
-        .demo-visualization {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 2rem;
-            margin: 2rem 0;
-        }
-
-        /* Footer */
-        footer {
-            background: #333;
-            color: white;
-            text-align: center;
-            padding: 3rem 0;
-        }
-
-        .footer-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .footer-links a {
-            color: white;
-            text-decoration: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .footer-links a:hover {
-            opacity: 0.8;
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in {
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-            
-            .hero .subtitle {
-                font-size: 1.1rem;
-            }
-            
-            .nav-links {
-                display: none;
-            }
-            
-            .hero-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .stats {
-                grid-template-columns: 1fr;
-            }
-
-            .citation-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-
-            .citation-formats {
-                flex-wrap: wrap;
-            }
-        }
-
-        /* Scroll Progress Bar */
-        .progress-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 0%;
-            height: 3px;
-            background: #667eea;
-            z-index: 1001;
-            transition: width 0.1s ease;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="AVVA: LLM-based curation for audio–video representation learning. Paper, method, scored AVE-2 examples, and complete retrieval results from EUSIPCO 2025.">
+  <meta property="og:title" content="Quality Over Quantity? · AVVA">
+  <meta property="og:description" content="LLM-Based Curation for a Data-Efficient Audio–Video Foundation Model. EUSIPCO 2025.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://avva-curation.github.io/AVVA-curation/">
+  <title>AVVA · Quality Over Quantity? · EUSIPCO 2025</title>
+  <style>
+    :root { color-scheme: light; --ink: #172e35; --muted: #52666a; --teal: #176353; --paper: #fafbf8; --line: #d9e1dc; --wash: #edf3ee; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 2rem; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    a { color: var(--teal); text-underline-offset: .2em; }
+    a:hover { text-decoration-thickness: 2px; }
+    a, button, summary { -webkit-tap-highlight-color: transparent; }
+    :focus-visible { outline: 3px solid #aa5916; outline-offset: 5px; }
+    button { font: inherit; cursor: pointer; }
+    h1, h2, h3, p, figure { margin: 0; }
+    h1, h2, h3 { line-height: 1.18; }
+    h2 { font-size: clamp(1.8rem, 3vw, 2.5rem); letter-spacing: -.035em; font-weight: 650; }
+    h3 { font-size: 1.15rem; font-weight: 650; }
+    p + p { margin-top: 1rem; }
+    .wrap { width: min(1180px, calc(100% - 80px)); margin-inline: auto; }
+    .skip { position: absolute; top: -100px; left: 20px; z-index: 10; padding: 12px; background: white; }
+    .skip:focus { top: 12px; }
+    .site-header { border-bottom: 1px solid var(--line); }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 22px; }
+    .brand { font-size: 1.4rem; font-weight: 800; letter-spacing: -.04em; text-decoration: none; color: var(--ink); }
+    .brand-mark { display: inline-block; width: 12px; height: 12px; margin-right: 9px; border: 3px solid var(--teal); border-radius: 50%; }
+    .nav-links { display: flex; flex-wrap: wrap; gap: 8px 28px; }
+    .nav-links a { font-size: .9rem; text-decoration: none; color: var(--muted); padding-block: 5px; }
+    .nav-links a:hover { color: var(--teal); text-decoration: underline; }
+    .hero { padding-block: 72px 62px; }
+    .eyebrow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: .76rem; letter-spacing: .09em; text-transform: uppercase; font-weight: 700; color: var(--teal); margin-bottom: 26px; }
+    .venue { border: 1px solid #bccfc2; border-radius: 4px; padding: 5px 10px; letter-spacing: .05em; white-space: nowrap; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 228px; gap: 52px; align-items: end; }
+    h1 { font-size: clamp(2.1rem, 3.9vw, 3.35rem); letter-spacing: -.045em; font-weight: 650; }
+    .title-question { display: block; font-family: Georgia, "Times New Roman", serif; font-weight: 400; letter-spacing: -.04em; font-size: 1.15em; color: var(--teal); margin-bottom: 12px; }
+    .research-note { border-left: 1px solid #b4cbbb; padding: 8px 0 8px 27px; color: var(--muted); font-size: .9rem; }
+    .research-note strong { display: block; font-size: 3.6rem; line-height: 1.05; letter-spacing: -.055em; color: var(--teal); font-weight: 500; }
+    .research-note .unit { font-size: 1.2rem; letter-spacing: 0; }
+    .research-note p + p { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .authors { display: flex; gap: 24px 44px; flex-wrap: wrap; margin-top: 38px; }
+    .author { display: grid; gap: 2px; }
+    .author-name { font-size: 1rem; font-weight: 600; color: var(--ink); text-decoration: none; }
+    .affiliation { font-size: .84rem; color: var(--muted); }
+    .internship { margin-top: 17px; color: var(--muted); font-size: .8rem; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; gap: 18px; border: 1px solid #b8c9bf; border-radius: 5px; padding: 9px 18px; font-size: .88rem; font-weight: 600; text-decoration: none; color: var(--teal); background: transparent; }
+    .button:hover { background: #e6eee7; }
+    .button.primary { color: white; background: var(--teal); border-color: var(--teal); }
+    .button.primary:hover { background: #114b3f; }
+    .abstract { padding: 40px 0 48px; border-top: 1px solid var(--line); display: grid; grid-template-columns: 200px minmax(0,1fr); gap: 38px; }
+    .abstract h2 { font-size: 1.2rem; letter-spacing: -.02em; padding-top: 4px; }
+    .abstract p { max-width: 880px; font-size: 1.025rem; line-height: 1.85; }
+    .section { border-top: 1px solid var(--line); padding-block: 64px; }
+    .section-head { display: flex; align-items: start; justify-content: space-between; gap: 32px; margin-bottom: 30px; }
+    .section-intro { max-width: 640px; color: var(--muted); margin-top: 16px; }
+    .kicker { color: var(--teal); font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 12px; }
+    .figure-box { background: white; border: 1px solid var(--line); padding: 24px; border-radius: 8px; }
+    .figure-box img { display: block; width: 100%; height: auto; }
+    figcaption { color: var(--muted); font-size: .82rem; max-width: 970px; margin-top: 18px; }
+    .figure-link { white-space: nowrap; display: inline-block; margin-top: 8px; }
+    .steps { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 28px; padding: 0; margin: 34px 0 0; list-style: none; counter-reset: pipeline; }
+    .steps li { counter-increment: pipeline; padding-top: 18px; border-top: 2px solid #b4cbbb; }
+    .steps li::before { content: counter(pipeline, decimal-leading-zero); display: block; font-size: .78rem; color: var(--teal); font-weight: 700; margin-bottom: 16px; }
+    .steps p { font-size: .9rem; color: var(--muted); margin-top: 12px; }
+    .examples-section { background: #f0f4ef; border-block: 1px solid var(--line); }
+    .examples-section .section { border: 0; }
+    .example-list { display: grid; gap: 20px; }
+    .example { background: #fff; border: 1px solid #d0dbd3; border-radius: 8px; overflow: hidden; }
+    .example-head { display: flex; justify-content: space-between; align-items: start; gap: 18px; padding: 23px 28px; border-bottom: 1px solid var(--line); }
+    .example-head h3 { margin-top: 9px; font-size: 1.25rem; }
+    .tag { display: inline-block; color: #205b49; background: #eaf3ec; padding: 3px 9px; border-radius: 3px; font-size: .7rem; font-weight: 700; letter-spacing: .04em; }
+    .tag.low { color: #854716; background: #fbefe1; }
+    .tag.offscreen { color: #425d87; background: #ecf0f8; }
+    .clip-meta { text-align: right; color: var(--muted); font-size: .8rem; flex-shrink: 0; }
+    .clip-meta a { font: 600 .85rem/1.7 ui-monospace, "Cascadia Code", Consolas, monospace; }
+    .example-body { display: grid; grid-template-columns: minmax(0,1fr) 272px; gap: 36px; padding: 26px 28px; }
+    .caption-label { color: var(--muted); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; margin-bottom: 7px; }
+    .raw-caption { white-space: pre-line; font-size: .9rem; line-height: 1.7; overflow-wrap: anywhere; }
+    .audio-caption { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .speech-caption { margin-top: 12px; }
+    table { border-collapse: collapse; width: 100%; }
+    .scores caption { text-align: left; font-size: .74rem; color: var(--muted); margin-bottom: 8px; }
+    .scores th, .scores td { border-bottom: 1px solid var(--line); padding: 9px 0; font-size: .82rem; }
+    .scores th { text-align: left; font-weight: 400; }
+    .scores td { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--teal); padding-left: 12px; }
+    .example-note { margin-top: 20px; font-size: .81rem; color: var(--muted); line-height: 1.65; }
+    .example details { margin-top: 16px; font-size: .81rem; color: var(--muted); }
+    summary { cursor: pointer; color: var(--teal); padding-block: 6px; }
+    .reason-list { padding-left: 18px; margin: 10px 0 0; }
+    .reason-list li + li { margin-top: 10px; }
+    .source-note { margin-top: 22px; color: var(--muted); font-size: .8rem; }
+    .table-context { margin-bottom: 18px; color: var(--muted); font-size: .85rem; }
+    .table-wrap { overflow-x: auto; border: 1px solid #cdd8d0; border-radius: 6px; background: white; }
+    .results-table { min-width: 1100px; font-size: .78rem; font-variant-numeric: tabular-nums; }
+    .results-table caption { text-align: left; padding: 18px 20px; font-size: .8rem; background: var(--paper); line-height: 1.7; caption-side: bottom; border-top: 1px solid var(--line); }
+    .results-table th, .results-table td { padding: 12px 8px; text-align: center; white-space: nowrap; }
+    .results-table thead { background: #e9f0e9; }
+    .results-table thead tr:first-child th { padding-top: 17px; padding-bottom: 7px; }
+    .results-table thead tr:last-child th { font-weight: 500; padding-top: 5px; padding-bottom: 14px; }
+    .results-table tbody tr.group-start > * { border-top: 1px solid var(--line); }
+    .results-table tbody th[scope="rowgroup"] { text-align: left; padding-left: 18px; font-weight: 500; }
+    .results-table tbody th[scope="row"] { font-weight: 400; }
+    .results-table sup { font-size: .63rem; margin-left: 1px; color: #4c6369; }
+    .results-table .ours { background: #edf5ee; }
+    .results-table .ours th[scope="rowgroup"] { font-weight: 750; color: #14513d; }
+    .results-table .group-edge { border-left: 1px solid var(--line); }
+    .scroll-hint { color: var(--muted); font-size: .78rem; margin: 9px 0 0; }
+    .findings { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 32px; margin-top: 35px; }
+    .finding { border-top: 2px solid #c1d0c4; padding-top: 18px; }
+    .finding h3 { font-size: .93rem; margin-bottom: 10px; }
+    .finding p { color: var(--muted); font-size: .86rem; }
+    .two-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; }
+    .two-sections h2 { font-size: 1.9rem; }
+    .two-sections p { color: var(--muted); font-size: .94rem; }
+    .resource-title { margin-top: 22px; margin-bottom: 16px; }
+    .resource-title a { font-size: 1.3rem; color: var(--ink); line-height: 1.4; }
+    .terms { margin-top: 22px; color: var(--muted); font-size: .8rem; }
+    .terms p { font-size: .8rem; margin-top: 12px; }
+    .citation-heading { display: flex; align-items: center; gap: 24px; justify-content: space-between; margin-bottom: 23px; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; padding: 28px; font: .83rem/1.85 ui-monospace, "Cascadia Code", Consolas, monospace; background: #eef2ec; border: 1px solid var(--line); border-radius: 6px; }
+    .copy-status { font-size: .8rem; color: var(--muted); min-height: 1.65em; margin-top: 8px; }
+    footer { border-top: 1px solid var(--line); padding-block: 28px 40px; }
+    .footer-content { display: flex; justify-content: space-between; align-items: start; gap: 20px; font-size: .8rem; color: var(--muted); }
+    .footer-links { display: flex; gap: 12px 24px; flex-wrap: wrap; }
+    [hidden] { display: none !important; }
+    @media (max-width: 1000px) {
+      .hero-grid { grid-template-columns: minmax(0,1fr) 170px; gap: 30px; }
+      .hero { padding-block: 52px; }
+      .research-note { padding-left: 20px; }
+      .research-note strong { font-size: 3rem; }
+      .abstract { grid-template-columns: 130px minmax(0,1fr); gap: 24px; }
+      .steps { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .example-body { grid-template-columns: minmax(0,1fr) 220px; gap: 24px; }
+      .findings { grid-template-columns: 1fr; gap: 22px; }
+      .two-sections { gap: 36px; }
+    }
+    @media (max-width: 680px) {
+      .wrap { width: calc(100% - 36px); }
+      .nav { align-items: start; padding-block: 16px; gap: 16px; }
+      .nav-links { gap: 2px 18px; justify-content: end; max-width: 240px; }
+      .nav-links a { font-size: .8rem; }
+      .hero { padding-block: 36px; }
+      .eyebrow { font-size: .64rem; gap: 10px; margin-bottom: 24px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 26px; }
+      h1 { font-size: 2.05rem; line-height: 1.2; }
+      .research-note { display: flex; gap: 24px; align-items: center; font-size: .8rem; border-left: 0; border-top: 1px solid var(--line); padding: 20px 0 0; }
+      .research-note strong { font-size: 2.4rem; }
+      .research-note p { flex: 1; }
+      .research-note p + p { margin: 0; padding: 0 0 0 22px; border-top: 0; border-left: 1px solid var(--line); }
+      .authors { margin-top: 28px; gap: 15px 28px; }
+      .author-name { font-size: .92rem; }
+      .affiliation { font-size: .78rem; }
+      .internship { font-size: .74rem; }
+      .actions { gap: 8px; }
+      .button { font-size: .8rem; padding-inline: 12px; gap: 10px; }
+      .abstract { grid-template-columns: 1fr; padding-block: 32px; gap: 16px; }
+      .abstract p { font-size: .95rem; line-height: 1.85; }
+      .section { padding-block: 40px; }
+      .section-head { display: block; margin-bottom: 24px; }
+      .section-intro { font-size: .92rem; }
+      .figure-box { padding: 8px; border-radius: 5px; }
+      figcaption { font-size: .76rem; }
+      .steps { gap: 24px 22px; }
+      .steps h3 { font-size: 1.02rem; }
+      .steps p { font-size: .83rem; }
+      .example-head { flex-direction: column; gap: 12px; padding: 20px; }
+      .clip-meta { text-align: left; }
+      .example-body { grid-template-columns: 1fr; padding: 20px; gap: 24px; }
+      .raw-caption { font-size: .85rem; }
+      .scores th, .scores td { font-size: .82rem; }
+      .two-sections { grid-template-columns: 1fr; gap: 42px; }
+      .citation-heading { gap: 12px; }
+      pre { padding: 20px; font-size: .74rem; }
+      .footer-content { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    @media print { .nav, .actions, .copy-button, .scroll-hint { display: none; } body { background: white; } .wrap { width: 100%; } .table-wrap { overflow: visible; } .results-table { min-width: 0; font-size: 7pt; } .results-table th, .results-table td { padding: 5px 2px; } .example { break-inside: avoid; } }
+  </style>
 </head>
 <body>
-    <div class="acceptance-banner">
-        <span class="emoji">🎉</span>
-        Accepted at EUSIPCO 2025 (European Signal Processing Conference)
-        <span class="emoji">🎉</span>
-    </div>
-
-    <div class="progress-bar" id="progressBar"></div>
-    
-    <nav id="navbar">
-        <div class="container">
-            <div class="nav-container">
-                <a href="#" class="logo">AVVA</a>
-                <ul class="nav-links">
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#citation">Citation</a></li>
-                    <li><a href="#architecture">Architecture</a></li>
-                    <li><a href="#results">Results</a></li>
-                    <li><a href="#demo">Demo</a></li>
-                    <li><a href="#code">Code</a></li>
-                </ul>
-            </div>
-        </div>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav wrap" aria-label="Main navigation">
+      <a class="brand" href="#main" aria-label="AVVA home"><span class="brand-mark" aria-hidden="true"></span>AVVA</a>
+      <div class="nav-links"><a href="#method">Method</a><a href="#examples">Examples</a><a href="#results">Results</a><a href="#dataset">Dataset</a><a href="#citation">Citation</a></div>
     </nav>
-
-    <section id="home" class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1>AVVA</h1>
-                <p class="subtitle">
-                    <strong>A</strong>udio-<strong>V</strong>ideo <strong>V</strong>ector <strong>A</strong>lignment<br>
-                    Quality Over Quantity? LLM-Based Curation for a Data-Efficient Audio–Video Foundation Model
-                </p>
-
-                <div class="conference-badge">
-                    EUSIPCO 2025
-                </div>
-                
-                <div class="authors">
-                    <strong>Ali Vosoughi</strong>*¹, <strong>Dimitra Emmanouilidou</strong>², <strong>Hannes Gamper</strong>²
-                </div>
-                
-                <div class="affiliations">
-                    ¹University of Rochester &nbsp;•&nbsp; ²Microsoft Research<br>
-                    *Work completed during internship at Microsoft Research
-                </div>
-                
-                <div class="hero-buttons">
-                    <a href="https://eurasip.org/Proceedings/Eusipco/Eusipco2025/pdfs/0000286.pdf" class="btn btn-primary">📄 Read Paper</a>
-                    <a href="https://github.com/AVVA-curation/AVVA-curation" class="btn btn-secondary">💻 View Code</a>
-                    <a href="#citation" class="btn btn-secondary">📋 Cite This Work</a>
-                </div>
-            </div>
+  </header>
+  <main id="main">
+    <div class="wrap">
+      <section class="hero" aria-labelledby="paper-title">
+        <div class="eyebrow"><span class="venue">EUSIPCO 2025</span><span>Audio-Video Vector Alignment</span></div>
+        <div class="hero-grid">
+          <h1 id="paper-title"><span class="title-question">Quality Over Quantity?</span> LLM-Based Curation for a Data-Efficient Audio–Video Foundation Model</h1>
+          <aside class="research-note" aria-label="Research at a glance"><p><strong>192 <span class="unit">hrs</span></strong>of curated training data</p><p>Whisper + DINOv2<br>Audio–video contrastive learning</p></aside>
         </div>
-    </section>
-
-    <section id="citation" class="content-section" style="padding-top: 6rem;">
-        <div class="container">
-            <div class="citation-block">
-                <div class="citation-header">
-                    <span class="citation-title">📋 Citation</span>
-                    <button class="copy-btn" id="copyBtn" onclick="copyCitation()">
-                        <span id="copyIcon">📋</span>
-                        <span id="copyText">Copy</span>
-                    </button>
-                </div>
-                
-                <div class="citation-formats">
-                    <button class="format-btn active" onclick="showFormat('bibtex')">BibTeX</button>
-                    <button class="format-btn" onclick="showFormat('apa')">APA</button>
-                    <button class="format-btn" onclick="showFormat('ieee')">IEEE</button>
-                </div>
-
-                <div class="citation-content" id="citationContent">
-@inproceedings{vosoughi2025quality,
-  title={Quality Over Quantity? LLM-Based Curation for a Data-Efficient Audio-Video Foundation Model},
-  author={Vosoughi, Ali and Emmanouilidou, Dimitra and Gamper, Hannes},
-  booktitle={2025 33rd European Signal Processing Conference (EUSIPCO)},
-  year={2025},
-  organization={IEEE},
-  url={https://eurasip.org/Proceedings/Eusipco/Eusipco2025/pdfs/0000286.pdf}
-}</div>
-            </div>
+        <div class="authors">
+          <div class="author"><a class="author-name" href="https://ali-vosoughi.github.io/">Ali Vosoughi<span aria-label="internship footnote">*</span></a><span class="affiliation">University of Rochester</span></div>
+          <div class="author"><a class="author-name" href="https://www.microsoft.com/en-us/research/people/diemmano/">Dimitra Emmanouilidou</a><span class="affiliation">Microsoft Research</span></div>
+          <div class="author"><a class="author-name" href="https://www.microsoft.com/en-us/research/people/hagamper/">Hannes Gamper</a><span class="affiliation">Microsoft Research</span></div>
         </div>
-    </section>
+        <p class="internship">* Work completed during an internship at Microsoft Research, Redmond, WA, USA.</p>
+        <div class="actions"><a class="button primary" href="https://eurasip.org/Proceedings/Eusipco/Eusipco2025/pdfs/0000286.pdf">Read the paper <span aria-hidden="true">↗</span></a><a class="button" href="https://huggingface.co/datasets/ali-vosoughi/ave-2">Explore AVE-2 <span aria-hidden="true">↗</span></a><a class="button" href="#citation">Cite this work</a></div>
+      </section>
+      <section class="abstract" aria-labelledby="abstract-title"><h2 id="abstract-title">Abstract</h2><p id="paper-abstract">Integrating audio and visual data for training multimodal foundational models remains a challenge. The Audio-Video Vector Alignment (AVVA) framework addresses this by considering AV scene alignment beyond mere temporal synchronization, and leveraging Large Language Models (LLMs) for data curation. AVVA implements a scoring mechanism for selecting aligned training data segments. It integrates Whisper, a speech-based foundation model, for audio and DINOv2 for video analysis in a dual-encoder structure with contrastive learning on AV pairs. Evaluations on AudioCaps, VALOR, and VGGSound demonstrate the effectiveness of the proposed model architecture and data curation approach. AVVA achieves a significant improvement in top-k accuracies for video-to-audio retrieval on all datasets compared to DenseAV, while using only 192 hrs of curated training data. Furthermore, an ablation study indicates that the data curation process effectively trades data quality for data quantity, yielding increases in top-k retrieval accuracies on AudioCaps, VALOR, and VGGSound, compared to training on the full spectrum of uncurated data.</p></section>
+      <section class="section" id="method" aria-labelledby="method-title">
+        <div class="section-head"><div><p class="kicker">From raw pairs to training data</p><h2 id="method-title">How the curation works</h2><p class="section-intro">Describe the audio and video separately, then reason about how they fit together. Language guides data selection; AVVA learns directly from the selected audio–video pairs.</p></div></div>
+        <figure>
+          <div class="figure-box"><img src="figures/figure-1-avva-framework.png" width="1601" height="473" alt="The AVVA framework: LLaVA-Next-V describes video and LTU-AS describes audio. Mistral scores alignment and selects training pairs for Whisper and DINOv2 encoders with an InfoNCE objective." decoding="async"></div>
+          <figcaption>Overview of the proposed audiovisual alignment approach. (a) Our method&#x27;s data curation stage uses multimodal reasoning to retain only highly aligned data. It uses LLaVA-Next-Video for video reasoning, LTU-AS for audio processing, and Mistral for alignment scoring. (b) AVVA employs Whisper (audio), DINOv2 (video backbone), without the need for textual mediation during training.<br><a class="figure-link" href="figures/figure-1-avva-framework.png">View the full-size framework ↗</a></figcaption>
+        </figure>
+        <ol class="steps">
+          <li><h3>Segment the video</h3><p>Split input videos into 3-second clips, keeping the audio paired with its video.</p></li>
+          <li><h3>Describe each modality</h3><p>LLaVA-Next-Video captions the video. LTU-AS describes the audio, including speech and environmental sounds.</p></li>
+          <li><h3>Score the alignment</h3><p>Mistral compares the descriptions using five criteria: Temporal Alignment, Spatial Coherence, Contextual Relevance, Physical Causality, and Sound Source Visibility. Each score is on a scale of 0–10.</p></li>
+          <li><h3>Select, then train</h3><p>Average the scores with equal weights and apply a selection threshold. Train AVVA on the retained pairs using Whisper and DINOv2 with contrastive learning.</p></li>
+        </ol>
+      </section>
+    </div>
+    <div class="examples-section">
+      <section class="section wrap" id="examples" aria-labelledby="examples-title">
+        <div class="section-head"><div><p class="kicker">See what the pipeline scores</p><h2 id="examples-title">Examples</h2><p class="section-intro">Real scored segments from <a href="https://huggingface.co/datasets/ali-vosoughi/ave-2">AVE-2</a>, the dataset that followed this work. Captions, audio descriptions, and scores below are machine-generated annotations, not human-verified labels.</p></div></div>
+        <div class="example-list"><article class="example" aria-labelledby="example--fUNb4eiu1w_02">
+          <div class="example-head"><div><span class="tag ">High alignment</span><h3 id="example--fUNb4eiu1w_02">An acoustic guitar, heard and seen</h3></div>
+            <p class="clip-meta"><a href="https://www.youtube.com/watch?v=-fUNb4eiu1w" aria-label="YouTube video -fUNb4eiu1w">-fUNb4eiu1w ↗</a><br>Segment 02 · 3–6 s in AVE-2<br><a href="https://huggingface.co/datasets/ali-vosoughi/ave-2/blob/0a025ec10aab4c6b7c9f97bdbbd9355e0482cf8b/data/train_00000.json">Metadata source</a></p>
+          </div>
+          <div class="example-body"><div><p class="caption-label">Video caption · opening paragraph</p><p class="raw-caption">The video features a person playing an acoustic guitar in what appears to be a casual indoor setting. The individual is wearing a dark t-shirt with a star emblem on the chest and is seated, holding the guitar with both hands. The background includes a chair and some items that suggest a personal space, such as clothing hanging on a rack or shelves.</p>
+            <details><summary>Read the full video caption</summary><p class="raw-caption" data-field="video_caption">The video features a person playing an acoustic guitar in what appears to be a casual indoor setting. The individual is wearing a dark t-shirt with a star emblem on the chest and is seated, holding the guitar with both hands. The background includes a chair and some items that suggest a personal space, such as clothing hanging on a rack or shelves.
 
-    <section class="content-section">
-        <div class="container">
-            <div class="section-content">
-                <h2 class="section-title">Key Achievements</h2>
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-number">192</div>
-                        <div class="stat-label">Hours of Curated Training Data</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">4.5×</div>
-                        <div class="stat-label">Better Video-to-Audio Retrieval</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">5</div>
-                        <div class="stat-label">Alignment Scoring Metrics</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">3</div>
-                        <div class="stat-label">Evaluation Datasets</div>
-                    </div>
-                </div>
-                
-                <p style="font-size: 1.1rem; margin-top: 2rem; color: #666;">
-                    AVVA achieves <strong>significant improvements in video-to-audio retrieval</strong> across AudioCaps, VALOR, and VGGSound datasets using only <strong>192 hours</strong> of LLM-curated training data – demonstrating that data quality effectively trades for data quantity.
-                </p>
-            </div>
+The scene transitions smoothly from one frame to another without significant changes in the visual elements. There are no visible texts or subtitles within the frames provided. The lighting is consistent throughout the video, indicating it was taken during the day under natural light conditions.</p></details>
+            <div class="audio-caption"><p class="caption-label">Audio description</p><p class="raw-caption" data-field="environmental_audio">Labels with acoustic features: Rich and full -&gt; Musical instrument; Full of various frequencies -&gt; Music</p></div>
+          </div><div><table class="scores" aria-label="Alignment scores for -fUNb4eiu1w_02"><caption>Pipeline scores · 0–10</caption><tbody><tr><th scope="row">Temporal Alignment</th><td>10</td></tr><tr><th scope="row">Spatial Coherence</th><td>10</td></tr><tr><th scope="row">Contextual Relevance</th><td>10</td></tr><tr><th scope="row">Physical Causality</th><td>9</td></tr><tr><th scope="row">Sound Source Visibility</th><td>10</td></tr></tbody></table>
+            <p class="example-note">The video caption describes a person playing an acoustic guitar; the audio description identifies music and a musical instrument, and the visible-source field identifies the acoustic guitar.</p>
+            <details><summary>Read the pipeline’s reasoning</summary><ul class="reason-list"><li><strong>Temporal Alignment.</strong> The audio description of the music perfectly aligns with the visual of the person playing an acoustic guitar.</li><li><strong>Spatial Coherence.</strong> The audio description of the rich and full musical instrument matches the visual of the acoustic guitar being played.</li><li><strong>Contextual Relevance.</strong> The audio description of the music and the visual of the person playing an acoustic guitar both suggest a casual indoor setting.</li><li><strong>Physical Causality.</strong> The audio description of the music can logically be attributed to the action of the person playing the acoustic guitar.</li><li><strong>Sound Source Visibility.</strong> The acoustic guitar is the only visible active sound source in the scene.</li></ul></details>
+          </div></div>
+        </article>
+<article class="example" aria-labelledby="example--07O11QVLxo_02">
+          <div class="example-head"><div><span class="tag ">High alignment</span><h3 id="example--07O11QVLxo_02">A telephone and its ringing bell</h3></div>
+            <p class="clip-meta"><a href="https://www.youtube.com/watch?v=-07O11QVLxo" aria-label="YouTube video -07O11QVLxo">-07O11QVLxo ↗</a><br>Segment 02 · 3–6 s in AVE-2<br><a href="https://huggingface.co/datasets/ali-vosoughi/ave-2/blob/0a025ec10aab4c6b7c9f97bdbbd9355e0482cf8b/data/train_00000.json">Metadata source</a></p>
+          </div>
+          <div class="example-body"><div><p class="caption-label">Video caption · opening paragraph</p><p class="raw-caption">The video features a vintage rotary dial telephone placed on a desk. The background is dimly lit, with various papers and books scattered around the area. The phone has a blue base with a silver dial and red buttons. There are no visible texts or subtitles in the video.</p>
+            <details><summary>Read the full video caption</summary><p class="raw-caption" data-field="video_caption">The video features a vintage rotary dial telephone placed on a desk. The background is dimly lit, with various papers and books scattered around the area. The phone has a blue base with a silver dial and red buttons. There are no visible texts or subtitles in the video.
+
+The scene transitions smoothly from one frame to another without any significant changes in the objects or their positions. The lighting remains consistent throughout the video, casting soft shadows on the desk surface. No other actions or events occur within this single frame of the video.</p></details>
+            <div class="audio-caption"><p class="caption-label">Audio description</p><p class="raw-caption" data-field="environmental_audio">Labels with acoustic features: High-pitched and piercing -&gt; Alarm; High pitched and short -&gt; Telephone bell ringing; Rich in frequency modulation -&gt; Speech; High-pitched and beeping -&gt; Alarm clock; Reverberant and echoey -&gt; Inside, large room or hall; Clear and distinct -&gt; Speech</p></div>
+          </div><div><table class="scores" aria-label="Alignment scores for -07O11QVLxo_02"><caption>Pipeline scores · 0–10</caption><tbody><tr><th scope="row">Temporal Alignment</th><td>10</td></tr><tr><th scope="row">Spatial Coherence</th><td>10</td></tr><tr><th scope="row">Contextual Relevance</th><td>8</td></tr><tr><th scope="row">Physical Causality</th><td>10</td></tr><tr><th scope="row">Sound Source Visibility</th><td>10</td></tr></tbody></table>
+            <p class="example-note">The caption describes a rotary telephone, the audio description includes telephone bell ringing, and the visible-source field identifies the telephone.</p>
+            <details><summary>Read the pipeline’s reasoning</summary><ul class="reason-list"><li><strong>Temporal Alignment.</strong> The audio description of the telephone bell ringing aligns perfectly with the ringing sound heard in the video.</li><li><strong>Spatial Coherence.</strong> The high-pitched and short sounds described as a telephone bell ringing are coming from the visible telephone in the video, which is the only potential sound source in the scene.</li><li><strong>Contextual Relevance.</strong> The telephone ringing in the audio provides a relevant context for the vintage rotary dial telephone depicted in the video.</li><li><strong>Physical Causality.</strong> The telephone ringing in the audio can be logically attributed to the visible telephone in the video, as this is the only object capable of producing such a sound in the scene.</li><li><strong>Sound Source Visibility.</strong> All active sound sources are visible in the video, including the telephone. No objects in the video are silent that could potentially produce sound.</li></ul></details>
+          </div></div>
+        </article>
+<article class="example" aria-labelledby="example-2UQi-0zeQsI_01">
+          <div class="example-head"><div><span class="tag low">Low alignment</span><h3 id="example-2UQi-0zeQsI_01">Film credits, a barking dog</h3></div>
+            <p class="clip-meta"><a href="https://www.youtube.com/watch?v=2UQi-0zeQsI" aria-label="YouTube video 2UQi-0zeQsI">2UQi-0zeQsI ↗</a><br>Segment 01 · 0–3 s in AVE-2<br><a href="https://huggingface.co/datasets/ali-vosoughi/ave-2/blob/0a025ec10aab4c6b7c9f97bdbbd9355e0482cf8b/data/train_00000.json">Metadata source</a></p>
+          </div>
+          <div class="example-body"><div><p class="caption-label">Video caption · opening paragraph</p><p class="raw-caption">The video displays a list of names and titles, likely from a film or television show credits. The background is a maroon color with text in yellow and white fonts. The top section lists the director&#x27;s name, followed by the animation team members, including Marvin Woodward, George Kreisl, Gerry Hathcock, Sandy Strother, Macdonald MacDonald, Jack Huber, Oliver Wallace, Karl Karpe, and Art Landy.</p>
+            <details><summary>Read the full video caption</summary><p class="raw-caption" data-field="video_caption">The video displays a list of names and titles, likely from a film or television show credits. The background is a maroon color with text in yellow and white fonts. The top section lists the director&#x27;s name, followed by the animation team members, including Marvin Woodward, George Kreisl, Gerry Hathcock, Sandy Strother, Macdonald MacDonald, Jack Huber, Oliver Wallace, Karl Karpe, and Art Landy.
+
+The scene transitions between different scenes, each with its own title and characters listed below it. For example:
+- &quot;Direction&quot; - Marvin Woodward
+- &quot;Animation&quot; - George Kreisl
+- &quot;Story&quot; - Sandy Strother
+- &quot;Music Layout&quot; - Oliver Wallace
+- &quot;Background&quot; - Art Landy
+
+The overall setting appears to be a movie or TV show set in an office environment, as suggested by the presence of multiple screen shots and the formal presentation style of the credits.</p></details>
+            <div class="audio-caption"><p class="caption-label">Audio description</p><p class="raw-caption" data-field="environmental_audio">Labels with acoustic features: Rich in frequency modulation -&gt; Speech; High-pitched and barking -&gt; Dog</p></div>
+          </div><div><table class="scores" aria-label="Alignment scores for 2UQi-0zeQsI_01"><caption>Pipeline scores · 0–10</caption><tbody><tr><th scope="row">Temporal Alignment</th><td>0</td></tr><tr><th scope="row">Spatial Coherence</th><td>0</td></tr><tr><th scope="row">Contextual Relevance</th><td>0</td></tr><tr><th scope="row">Physical Causality</th><td>0</td></tr><tr><th scope="row">Sound Source Visibility</th><td>0</td></tr></tbody></table>
+            <p class="example-note">The video caption describes film or television credits, while the audio description identifies speech and a barking dog. All five released scores are zero; the source list identifies the dog as invisible and the credits as silent.</p>
+            <details><summary>Read the pipeline’s reasoning</summary><ul class="reason-list"><li><strong>Temporal Alignment.</strong> There is no direct correlation between the audio (a dog barking) and the video (credits of a film or television show).</li><li><strong>Spatial Coherence.</strong> The video is a static list of credits, while the audio features a dog barking, which does not have a specific spatial location within the video.</li><li><strong>Contextual Relevance.</strong> The video is related to film or television credits, while the audio is a dog barking, which has no apparent connection to the context of the video.</li><li><strong>Physical Causality.</strong> The video does not depict any objects or actions that could logically produce the sound of a dog barking.</li><li><strong>Sound Source Visibility.</strong> The video does not depict any objects or characters that could be the source of the dog barking sound.</li></ul></details>
+          </div></div>
+        </article>
+<article class="example" aria-labelledby="example--7QTaeEKaig_01">
+          <div class="example-head"><div><span class="tag offscreen">Off-screen sound source</span><h3 id="example--7QTaeEKaig_01">Bird calls outside the frame</h3></div>
+            <p class="clip-meta"><a href="https://www.youtube.com/watch?v=-7QTaeEKaig" aria-label="YouTube video -7QTaeEKaig">-7QTaeEKaig ↗</a><br>Segment 01 · 0–3 s in AVE-2<br><a href="https://huggingface.co/datasets/ali-vosoughi/ave-2/blob/0a025ec10aab4c6b7c9f97bdbbd9355e0482cf8b/data/train_00000.json">Metadata source</a></p>
+          </div>
+          <div class="example-body"><div><p class="caption-label">Video caption · opening paragraph</p><p class="raw-caption">The video depicts a cartoon scene featuring a character lying in bed with a telephone on the side. The background is plain and light-colored, which contrasts with the dark blue of the bed and the white of the pillow. There are no other objects or characters visible in the frame.</p>
+            <details><summary>Read the full video caption</summary><p class="raw-caption" data-field="video_caption">The video depicts a cartoon scene featuring a character lying in bed with a telephone on the side. The background is plain and light-colored, which contrasts with the dark blue of the bed and the white of the pillow. There are no other objects or characters visible in the frame.
+
+Objects:
+- A bed
+- A telephone
+- A pillow
+
+Actions/Events:
+- The character appears to be sleeping or resting.
+- The telephone is connected to the bed via a cord.
+- The character&#x27;s position suggests they might be waking up or preparing for sleep.
+
+Temporal Information:
+- The video starts with the character in bed.
+- It transitions to the character sitting up in bed.
+- The scene then shifts to the character looking at something off-screen while still in bed.
+
+Visual Characteristics:
+- The color scheme is simple, with the bed being the most prominent object due to its size and placement.
+- The lighting is even, without any strong shadows or highlights that would suggest a specific time of day or mood.
+- The overall atmosphere is calm and serene, typical of a peaceful bedroom setting.
+
+Spatial Layout:
+- The bed occupies the central part of the image.
+- The telephone is positioned to the left of the bed, close to the viewer.
+- The character is seated upright, facing away from the camera.
+
+Text and Graphics:
+- No text or subtitles are present in the visual content.
+
+Emotional Tone:
+- The mood of the video seems tranquil and relaxed, consistent with a quiet, restful environment.
+
+Contextual Inference:
+- Based on the visual cues provided by the scene, it can be inferred that this is a moment captured during a routine activity such as getting ready for bed or taking a nap.</p></details>
+            <div class="audio-caption"><p class="caption-label">Audio description</p><p class="raw-caption" data-field="environmental_audio">Labels with acoustic features: High-pitched and melodious -&gt; Bird; High pitched and melodic -&gt; Bird vocalization, bird call, bird song</p></div>
+          </div><div><table class="scores" aria-label="Alignment scores for -7QTaeEKaig_01"><caption>Pipeline scores · 0–10</caption><tbody><tr><th scope="row">Temporal Alignment</th><td>3</td></tr><tr><th scope="row">Spatial Coherence</th><td>0</td></tr><tr><th scope="row">Contextual Relevance</th><td>4</td></tr><tr><th scope="row">Physical Causality</th><td>5</td></tr><tr><th scope="row">Sound Source Visibility</th><td>0</td></tr></tbody></table>
+            <p class="example-note">The video caption describes a cartoon character resting in bed with a telephone and pillow. The audio description identifies bird calls, and invisible_active_sources explicitly identifies those calls. The released visibility score is zero, with varied scores on the other four criteria.</p>
+            <details><summary>Read the pipeline’s reasoning</summary><ul class="reason-list"><li><strong>Temporal Alignment.</strong> The bird calls do not seem to correspond with any specific action or event in the video, as the character is shown to be resting or sleeping.</li><li><strong>Spatial Coherence.</strong> There is no spatial coherence between the audio and video as the bird calls are not coming from any visible or logical source within the video.</li><li><strong>Contextual Relevance.</strong> While the bird calls may symbolize nature or the outdoors, there is no indication in the video to suggest that the scene is set in such an environment.</li><li><strong>Physical Causality.</strong> The bird calls are audible, which implies that there is a source for the sounds, but it is not present or visible within the video.</li><li><strong>Sound Source Visibility.</strong> There are no visible active sound sources in the video that could be producing the bird calls.</li></ul></details>
+          </div></div>
+        </article></div>
+        <p class="source-note">Selected examples from the training split. Segment times are local AVE-2 excerpt windows, not timestamps in the original YouTube video. Expand each video caption to read it in full. Captions and scores are reproduced without edits; example titles and selection notes are editorial. Annotations reproduced with attribution to Ali Vosoughi and co-authors under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. See the <a href="#dataset-terms">access and citation terms</a>.</p>
+      </section>
+    </div>
+    <div class="wrap">
+      <section class="section" id="results" aria-labelledby="results-title">
+        <div class="section-head"><div><p class="kicker">Evidence from the paper</p><h2 id="results-title">Results</h2><p class="section-intro">The complete main retrieval table, including every comparison method and both retrieval directions.</p></div></div>
+        <p class="table-context">AVVA results use an MRE threshold of 7.6 out of 10. A→V denotes audio-to-video retrieval; V→A denotes video-to-audio retrieval.</p>
+        <div class="table-wrap" role="region" aria-label="Main retrieval results, horizontally scrollable" tabindex="0">
+          <table class="results-table">
+            <caption>Performance on Audio (A) - Video (V) Retrieval (Top-<i>k</i>={1,3,10}) (%). Standard deviations shown as superscripts depict performance variation over K=100 retrieval repetitions of random test subsets of size N=100.</caption>
+            <thead><tr><th rowspan="2" scope="col">Method</th><th rowspan="2" scope="col">Retrieval Type</th><th class="group-edge" colspan="3" scope="colgroup">AudioCaps</th><th class="group-edge" colspan="3" scope="colgroup">VALOR</th><th class="group-edge" colspan="3" scope="colgroup">VGG-Sound</th></tr><tr><th class="group-edge" scope="col">Top1</th><th scope="col">Top3</th><th scope="col">Top10</th><th class="group-edge" scope="col">Top1</th><th scope="col">Top3</th><th scope="col">Top10</th><th class="group-edge" scope="col">Top1</th><th scope="col">Top3</th><th scope="col">Top10</th></tr></thead>
+            <tbody>
+<tr class="group-start"><th scope="rowgroup" rowspan="2">Wav2CLIP</th><th scope="row">A→V</th><td class="group-edge">1.20<sup>± 0.98</sup></td><td>6.40<sup>± 3.01</sup></td><td>18.60<sup>± 3.83</sup></td><td class="group-edge">3.60<sup>± 0.80</sup></td><td>8.60<sup>± 0.49</sup></td><td>18.20<sup>± 3.54</sup></td><td class="group-edge">3.40<sup>± 1.36</sup></td><td>8.20<sup>± 1.17</sup></td><td>19.80<sup>± 3.06</sup></td></tr>
+<tr class=""><th scope="row">V→A</th><td class="group-edge">3.80<sup>± 2.14</sup></td><td>10.00<sup>± 3.22</sup></td><td>20.00<sup>± 3.63</sup></td><td class="group-edge">4.20<sup>± 2.64</sup></td><td>8.00<sup>± 4.24</sup></td><td>19.00<sup>± 3.52</sup></td><td class="group-edge">3.80<sup>± 1.94</sup></td><td>9.20<sup>± 2.32</sup></td><td>19.60<sup>± 1.62</sup></td></tr>
+</tbody>
+<tbody>
+<tr class="group-start"><th scope="rowgroup" rowspan="2">Random</th><th scope="row">A→V</th><td class="group-edge">1.40<sup>± 0.49</sup></td><td>3.80<sup>± 0.75</sup></td><td>11.80<sup>± 1.17</sup></td><td class="group-edge">1.20<sup>± 0.75</sup></td><td>3.20<sup>± 0.40</sup></td><td>11.60<sup>± 1.62</sup></td><td class="group-edge">1.20<sup>± 0.40</sup></td><td>3.40<sup>± 0.49</sup></td><td>11.60<sup>± 2.15</sup></td></tr>
+<tr class=""><th scope="row">V→A</th><td class="group-edge">1.00<sup>± 0.00</sup></td><td>3.60<sup>± 0.80</sup></td><td>10.80<sup>± 1.17</sup></td><td class="group-edge">1.20<sup>± 0.40</sup></td><td>3.20<sup>± 0.75</sup></td><td>11.00<sup>± 0.63</sup></td><td class="group-edge">1.00<sup>± 0.00</sup></td><td>3.00<sup>± 0.00</sup></td><td>10.60<sup>± 0.80</sup></td></tr>
+</tbody>
+<tbody>
+<tr class="group-start"><th scope="rowgroup" rowspan="2">DenseAV</th><th scope="row">A→V</th><td class="group-edge">10.20<sup>± 2.04</sup></td><td>22.60<sup>± 4.54</sup></td><td>49.40<sup>± 4.54</sup></td><td class="group-edge">7.80<sup>± 5.19</sup></td><td>19.00<sup>± 5.90</sup></td><td>41.80<sup>± 4.79</sup></td><td class="group-edge">6.80<sup>± 2.64</sup></td><td>16.00<sup>± 2.90</sup></td><td>43.20<sup>± 3.43</sup></td></tr>
+<tr class=""><th scope="row">V→A</th><td class="group-edge">1.40<sup>± 0.80</sup></td><td>5.60<sup>± 1.85</sup></td><td>26.40<sup>± 2.73</sup></td><td class="group-edge">2.20<sup>± 1.17</sup></td><td>5.80<sup>± 2.79</sup></td><td>24.60<sup>± 7.68</sup></td><td class="group-edge">1.60<sup>± 1.02</sup></td><td>5.00<sup>± 0.63</sup></td><td>22.60<sup>± 2.58</sup></td></tr>
+</tbody>
+<tbody>
+<tr class="group-start"><th scope="rowgroup" rowspan="2">ImageBind</th><th scope="row">A→V</th><td class="group-edge">62.00<sup>± 2.28</sup></td><td>83.40<sup>± 3.01</sup></td><td>92.60<sup>± 1.85</sup></td><td class="group-edge">55.80<sup>± 4.66</sup></td><td>71.60<sup>± 3.61</sup></td><td>85.00<sup>± 3.74</sup></td><td class="group-edge">50.60<sup>± 3.14</sup></td><td>74.00<sup>± 5.93</sup></td><td>88.20<sup>± 2.99</sup></td></tr>
+<tr class=""><th scope="row">V→A</th><td class="group-edge">64.00<sup>± 5.37</sup></td><td>85.40<sup>± 4.27</sup></td><td>95.40<sup>± 0.80</sup></td><td class="group-edge">58.80<sup>± 4.71</sup></td><td>73.60<sup>± 4.36</sup></td><td>86.60<sup>± 3.20</sup></td><td class="group-edge">53.20<sup>± 3.31</sup></td><td>73.40<sup>± 6.02</sup></td><td>85.60<sup>± 3.20</sup></td></tr>
+</tbody>
+<tbody>
+<tr class="group-start ours"><th scope="rowgroup" rowspan="2">AVVA (Ours)</th><th scope="row">A→V</th><td class="group-edge">6.57<sup>± 2.30</sup></td><td>13.84<sup>± 2.80</sup></td><td>31.68<sup>± 3.57</sup></td><td class="group-edge">6.69<sup>± 2.13</sup></td><td>15.63<sup>± 3.52</sup></td><td>33.67<sup>± 4.40</sup></td><td class="group-edge">6.71<sup>± 1.91</sup></td><td>15.02<sup>± 2.73</sup></td><td>33.86<sup>± 4.23</sup></td></tr>
+<tr class="ours"><th scope="row">V→A</th><td class="group-edge">6.23<sup>± 2.09</sup></td><td>14.70<sup>± 3.17</sup></td><td>31.06<sup>± 3.52</sup></td><td class="group-edge">7.75<sup>± 2.61</sup></td><td>16.64<sup>± 3.65</sup></td><td>34.27<sup>± 4.71</sup></td><td class="group-edge">6.86<sup>± 2.34</sup></td><td>14.47<sup>± 3.15</sup></td><td>32.84<sup>± 3.89</sup></td></tr>
+</tbody>
+          </table>
         </div>
-    </section>
-
-    <section id="architecture" class="content-section">
-        <div class="container">
-            <div class="section-content">
-                <h2 class="section-title">Architecture Overview</h2>
-                <div class="architecture">
-                    <div class="architecture-diagram">
-                        <img src="figures/figure-1-avva-framework.png" alt="AVVA Framework Architecture" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                        <p style="font-size: 0.9rem; color: #666; margin-top: 1rem; font-style: italic;">
-                            Figure 1: Overview of the proposed audiovisual alignment approach showing (a) data curation stage and (b) AVVA model training
-                        </p>
-                    </div>
-                    <p style="font-size: 1.1rem; margin-top: 2rem; color: #666;">
-                        AVVA integrates Whisper (speech-based foundation model) for audio and DINOv2 for video analysis in a dual-encoder structure with contrastive learning on AV pairs, enabling direct audio-video alignment without textual mediation during training.
-                    </p>
-                </div>
-            </div>
+        <p class="scroll-hint">Scroll across the table to see all datasets. Values and wording are from the <a href="https://eurasip.org/Proceedings/Eusipco/Eusipco2025/pdfs/0000286.pdf">paper</a>.</p>
+        <div class="findings">
+          <article class="finding"><h3>Cross-modal retrieval</h3><p>AVVA achieves audio-to-video accuracy comparable to DenseAV, with significantly improved video-to-audio accuracy, despite using only 192 hrs of carefully curated data compared to DenseAV&#x27;s 5,800 hrs, demonstrating a 30x improvement in data efficiency.</p></article>
+          <article class="finding"><h3>Data curation</h3><p>A key observation from our experiments is that increasing the amount of training data does not always lead to better performance.</p></article>
+          <article class="finding"><h3>Temporal alignment</h3><p>The analysis reveals a clear peak in similarity at 0 sec shift between audio and video, providing evidence of meaningful audio-video learning.</p></article>
         </div>
-    </section>
-
-    <section id="results" class="content-section">
-        <div class="container">
-            <div class="section-content">
-                <h2 class="section-title">Performance Results</h2>
-                <div class="results-grid">
-                    <div class="result-card">
-                        <div class="result-title">AudioCaps V2A Top-1</div>
-                        <div class="result-value">6.23%</div>
-                        <div class="result-description">vs 1.40% DenseAV baseline</div>
-                    </div>
-                    <div class="result-card">
-                        <div class="result-title">VALOR V2A Top-1</div>
-                        <div class="result-value">7.75%</div>
-                        <div class="result-description">vs 2.20% DenseAV baseline</div>
-                    </div>
-                    <div class="result-card">
-                        <div class="result-title">VGGSound V2A Top-1</div>
-                        <div class="result-value">6.86%</div>
-                        <div class="result-description">vs 1.60% DenseAV baseline</div>
-                    </div>
-                    <div class="result-card">
-                        <div class="result-title">Data Curation Benefit</div>
-                        <div class="result-value">Quality</div>
-                        <div class="result-description">Trades data quality for quantity</div>
-                    </div>
-                </div>
-                
-                <div class="architecture-diagram" style="margin-top: 3rem;">
-                    <img src="figures/topk_plots.png" alt="Performance vs Training Data" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                    <p style="font-size: 0.9rem; color: #666; margin-top: 1rem; font-style: italic;">
-                        Figure 4: Audio-to-video model performance over hours of training data, showing consistent improvements with data curation across Top-k accuracies
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="demo" class="interactive-demo">
-        <div class="container">
-            <div class="demo-container">
-                <h2 class="section-title">Multimodal Reasoning Engine</h2>
-                <p style="font-size: 1.1rem; margin-bottom: 2rem;">
-                    AVVA's data curation uses LLMs to score audio-video alignment, effectively trading data quality for data quantity
-                </p>
-                
-                <div class="demo-controls">
-                    <button class="demo-btn active" onclick="showMetric('temporal')">Temporal Alignment</button>
-                    <button class="demo-btn" onclick="showMetric('spatial')">Spatial Coherence</button>
-                    <button class="demo-btn" onclick="showMetric('contextual')">Contextual Relevance</button>
-                    <button class="demo-btn" onclick="showMetric('causality')">Physical Causality</button>
-                    <button class="demo-btn" onclick="showMetric('visibility')">Sound Source Visibility</button>
-                </div>
-                
-                <div style="margin: 2rem 0;">
-                    <img src="figures/figure-2-MRE.png" alt="Multimodal Reasoning Engine Architecture" style="width: 100%; max-width: 600px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                    <p style="font-size: 0.9rem; margin-top: 1rem; opacity: 0.8; font-style: italic;">
-                        Figure 2: The MRE integrates audio-LLM and video-LLM outputs into Mistral LLM for audiovisual scene alignment scoring
-                    </p>
-                </div>
-                
-                <div class="demo-visualization" id="demoViz">
-                    <h3>Temporal Alignment</h3>
-                    <p>How well do audio events match the timing of video events?</p>
-                    <div style="margin: 1rem 0; font-size: 2rem;">⏱️</div>
-                    <p>Example: A clap sound syncing with hands meeting in the video</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="code" class="content-section">
-        <div class="container">
-            <div class="section-content">
-                <h2 class="section-title">Open Source & Reproducible</h2>
-                <p style="font-size: 1.1rem; margin-bottom: 2rem; color: #666;">
-                    AVVA implements a scoring mechanism for selecting aligned training data segments and demonstrates significant improvements in top-k accuracies for video-to-audio retrieval across AudioCaps, VALOR, and VGGSound compared to existing methods.
-                </p>
-                
-                <div class="hero-buttons">
-                    <a href="https://github.com/AVVA-curation/AVVA-curation" class="btn btn-primary">🔧 Source Code</a>
-                    <a href="https://eurasip.org/Proceedings/Eusipco/Eusipco2025/pdfs/0000286.pdf" class="btn btn-secondary">📊 Paper (PDF)</a>
-                    <a href="#citation" class="btn btn-secondary">📋 Citation</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-links">
-                    <a href="https://eurasip.org/Proceedings/Eusipco/Eusipco2025/pdfs/0000286.pdf">Paper</a>
-                    <a href="https://github.com/AVVA-curation/AVVA-curation">Code</a>
-                    <a href="https://www.rochester.edu">University of Rochester</a>
-                    <a href="https://www.microsoft.com/en-us/research/">Microsoft Research</a>
-                </div>
-                <p>&copy; 2025 AVVA Research Team. Licensed under MIT.</p>
-                <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">
-                    Published in 2025 33rd European Signal Processing Conference (EUSIPCO)
-                </p>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        // Citation formats
-        const citations = {
-            bibtex: `@inproceedings{vosoughi2025quality,
-  title={Quality Over Quantity? LLM-Based Curation for a Data-Efficient Audio-Video Foundation Model},
-  author={Vosoughi, Ali and Emmanouilidou, Dimitra and Gamper, Hannes},
-  booktitle={2025 33rd European Signal Processing Conference (EUSIPCO)},
-  year={2025},
-  organization={IEEE},
-  url={https://eurasip.org/Proceedings/Eusipco/Eusipco2025/pdfs/0000286.pdf}
-}`,
-            apa: `Vosoughi, A., Emmanouilidou, D., & Gamper, H. (2025). Quality Over Quantity? LLM-Based Curation for a Data-Efficient Audio-Video Foundation Model. In 2025 33rd European Signal Processing Conference (EUSIPCO). IEEE.`,
-            ieee: `A. Vosoughi, D. Emmanouilidou, and H. Gamper, "Quality Over Quantity? LLM-Based Curation for a Data-Efficient Audio-Video Foundation Model," in 2025 33rd European Signal Processing Conference (EUSIPCO), 2025.`
-        };
-
-        let currentFormat = 'bibtex';
-
-        function showFormat(format) {
-            currentFormat = format;
-            const content = document.getElementById('citationContent');
-            const buttons = document.querySelectorAll('.format-btn');
-            
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            content.textContent = citations[format];
-        }
-
-        function copyCitation() {
-            const content = document.getElementById('citationContent').textContent;
-            const btn = document.getElementById('copyBtn');
-            const icon = document.getElementById('copyIcon');
-            const text = document.getElementById('copyText');
-            
-            navigator.clipboard.writeText(content).then(() => {
-                btn.classList.add('copied');
-                icon.textContent = '✓';
-                text.textContent = 'Copied!';
-                
-                setTimeout(() => {
-                    btn.classList.remove('copied');
-                    icon.textContent = '📋';
-                    text.textContent = 'Copy';
-                }, 2000);
-            });
-        }
-
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
-        // Navigation scroll effect
-        window.addEventListener('scroll', function() {
-            const navbar = document.getElementById('navbar');
-            const progressBar = document.getElementById('progressBar');
-            
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-            
-            // Update progress bar
-            const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-            progressBar.style.width = scrolled + '%';
-        });
-
-        // Demo interaction
-        function showMetric(metric) {
-            const buttons = document.querySelectorAll('.demo-btn');
-            const viz = document.getElementById('demoViz');
-            
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            const metrics = {
-                temporal: {
-                    title: 'Temporal Alignment',
-                    description: 'How well do audio events match the timing of video events?',
-                    icon: '⏱️',
-                    example: 'Example: A clap sound syncing with hands meeting in the video'
-                },
-                spatial: {
-                    title: 'Spatial Coherence',
-                    description: 'How well does the audio align with the spatial layout in the video?',
-                    icon: '🌍',
-                    example: 'Example: Car engine sound moving from left to right as it passes'
-                },
-                contextual: {
-                    title: 'Contextual Relevance',
-                    description: 'How closely do the audio and video themes match?',
-                    icon: '🎯',
-                    example: 'Example: Kitchen sounds matching cooking activities'
-                },
-                causality: {
-                    title: 'Physical Causality',
-                    description: 'Can the audio logically be attributed to what\'s shown in the video?',
-                    icon: '🔗',
-                    example: 'Example: Glass breaking sound matching visual shattering'
-                },
-                visibility: {
-                    title: 'Sound Source Visibility',
-                    description: 'Are the audio sources appropriately visible or hidden in the video?',
-                    icon: '👁️',
-                    example: 'Example: Visible objects producing sound vs. off-screen audio sources'
-                }
-            };
-            
-            const data = metrics[metric];
-            viz.innerHTML = `
-                <h3>${data.title}</h3>
-                <p>${data.description}</p>
-                <div style="margin: 1rem 0; font-size: 2rem;">${data.icon}</div>
-                <p>${data.example}</p>
-            `;
-        }
-
-        // Add animation on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('fade-in');
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.stat-card, .result-card').forEach(card => {
-            observer.observe(card);
-        });
-    </script>
+      </section>
+      <div class="section two-sections">
+        <section id="dataset" aria-labelledby="dataset-title">
+          <p class="kicker">The dataset that followed</p><h2 id="dataset-title">Dataset</h2>
+          <h3 class="resource-title"><a href="https://huggingface.co/datasets/ali-vosoughi/ave-2">AVE-2 ↗</a></h3>
+          <p>AVE-2 provides audiovisual captions, alignment scores, score rationales, and sound-source annotations. Access is gated: requests are reviewed individually and require agreement to the dataset’s citation terms.</p>
+          <p>The annotation layer is attributed to Ali Vosoughi and co-authors under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Research using AVE-2 should cite both <a href="#citation">the AVVA paper</a> and <a href="https://arxiv.org/abs/2506.10416">the SoundCLIP preprint</a>, as requested on the dataset card.</p>
+          <details class="terms" id="dataset-terms"><summary>Access and citation notice</summary><p>AVE-2 is released for research use. By requesting access you agree to the following: (1) you will cite the AVE-2 papers listed on this card in any paper, model, dataset, demo or report that uses AVE-2 or anything derived from it; (2) the annotation layer is used under CC BY 4.0 with attribution to Ali Vosoughi and co-authors; (3) the underlying audiovisual media is obtained under its own terms and is not redistributed with this release; (4) the metadata is not redistributed without this notice and the citation requirement; (5) access requests are reviewed individually and may be declined.</p></details>
+        </section>
+        <section id="follow-on" aria-labelledby="follow-on-title">
+          <p class="kicker">Continuing the research</p><h2 id="follow-on-title">Follow-on work</h2>
+          <h3 class="resource-title"><a href="https://ali-vosoughi.github.io/SoundCLIP/">Can Sound Replace Vision in LLaVA With Token Substitution? ↗</a></h3>
+          <p>SoundCLIP is the follow-on preprint. Its project page presents the token-substitution study and links to the current paper and the AVE-2 dataset.</p>
+          <div class="actions"><a class="button" href="https://ali-vosoughi.github.io/SoundCLIP/">SoundCLIP project <span aria-hidden="true">↗</span></a><a class="button" href="https://arxiv.org/abs/2506.10416">Current preprint <span aria-hidden="true">↗</span></a></div>
+        </section>
+      </div>
+      <section class="section" id="citation" aria-labelledby="citation-title">
+        <div class="citation-heading"><div><p class="kicker">Reference this work</p><h2 id="citation-title">Citation</h2></div><button class="button copy-button" type="button" id="copy-citation" hidden>Copy BibTeX</button></div>
+        <pre><code id="bibtex">@inproceedings{vosoughi2025quality,
+  title = {Quality Over Quantity? {LLM}-Based Curation for a
+           Data-Efficient Audio--Video Foundation Model},
+  author = {Vosoughi, Ali and Emmanouilidou, Dimitra and Gamper, Hannes},
+  booktitle = {EUSIPCO 2025},
+  year = {2025},
+  url = {https://eurasip.org/Proceedings/Eusipco/Eusipco2025/pdfs/0000286.pdf}
+}</code></pre>
+        <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>
+      </section>
+    </div>
+  </main>
+  <footer><div class="wrap footer-content"><p>AVVA · EUSIPCO 2025</p><div class="footer-links"><a href="https://ali-vosoughi.github.io/">Ali Vosoughi</a><a href="https://www.microsoft.com/en-us/research/publication/quality-over-quantity-llm-based-curation-for-a-data-efficient-audio-video-foundation-model/">Microsoft Research publication</a><a href="https://github.com/avva-curation/AVVA-curation">Page repository</a></div></div></footer>
+  <script>
+    const copyButton = document.getElementById('copy-citation');
+    copyButton.hidden = false;
+    copyButton.addEventListener('click', async () => {
+      const citation = document.getElementById('bibtex');
+      const status = document.getElementById('copy-status');
+      try {
+        await navigator.clipboard.writeText(citation.textContent);
+        status.textContent = 'BibTeX copied.';
+      } catch {
+        const range = document.createRange();
+        range.selectNodeContents(citation);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        status.textContent = 'Citation selected. Use your browser’s Copy command.';
+      }
+    });
+  </script>
 </body>
 </html>
