@@ -16,7 +16,7 @@ This repository contains the static AVVA project page. It presents the paper’s
 
 [AVE-2](https://huggingface.co/datasets/ali-vosoughi/ave-2) is the dataset that followed this work. Access is gated, individually reviewed, and subject to the citation agreement on the dataset card. The page’s example annotations are machine-generated, attributed to Ali Vosoughi and co-authors under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The required access and citation notice is preserved on the page. Underlying audiovisual media are governed by their own terms and are not included here.
 
-The follow-on preprint is [Can Sound Replace Vision in LLaVA With Token Substitution?](https://ali-vosoughi.github.io/SoundCLIP/) ([current arXiv version](https://arxiv.org/abs/2506.10416)). Cite both papers when using AVE-2, as requested on its dataset card.
+The follow-on preprint is [Projected Audio Tokens Gain Retrieval and Lose Grounded Generation in Multimodal LLMs](https://ali-vosoughi.github.io/SoundCLIP/) ([Projected Audio Tokens Gain Retrieval and Lose Grounded Generation in Multimodal LLMs (preprint)](https://ali-vosoughi.github.io/SoundCLIP/)). Cite both papers when using AVE-2, as requested on its dataset card.
 
 ## Preview locally
 
